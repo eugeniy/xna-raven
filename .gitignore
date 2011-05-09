@@ -4,4 +4,5 @@
 *.cachefile
 *.csproj.user
 bin
+Binaries
 obj
