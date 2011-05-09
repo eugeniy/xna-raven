@@ -17,6 +17,9 @@ namespace Raven
 
         protected const float m_pitchLimit = 1.4f;
 
+        protected const float m_nearPlaneDistance = 0.01f;
+        protected const float m_farPlaneDistance = 50;
+
         protected const float m_speed = 0.25f;
         protected const float m_mouseSpeedX = 0.0045f;
         protected const float m_mouseSpeedY = 0.0025f;
@@ -43,7 +46,7 @@ namespace Raven
             m_direction.Normalize();
 
             // Create default camera matrices
-            Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, m_aspectRatio, 0.01f, 1000);
+            Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver4, m_aspectRatio, m_nearPlaneDistance, m_farPlaneDistance);
             View = CreateLookAt();
         }
 
