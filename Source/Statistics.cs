@@ -99,7 +99,6 @@ namespace Raven
         public override void Draw(GameTime gameTime)
         {
             m_frameCounter++;
-            string fps = string.Format("fps: {0}", m_frameRate);
 
             m_spriteBatch.Begin();
             // Enumerate over all statistics and draw them
