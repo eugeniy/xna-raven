@@ -28,9 +28,10 @@ namespace Raven
 
         public Game()
         {
-            this.IsMouseVisible = true;
             graphics = new GraphicsDeviceManager(this);
             graphics.PreferMultiSampling = true;
+            graphics.PreferredBackBufferWidth = 960;
+            graphics.PreferredBackBufferHeight = 640;
             Content.RootDirectory = "Content";
         }
 
