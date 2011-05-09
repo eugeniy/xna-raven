@@ -9,7 +9,7 @@ namespace Raven
     /// </summary>
     public class Camera : Microsoft.Xna.Framework.GameComponent
     {
-        protected Vector3 m_position = new Vector3(0, 0, 30);
+        protected Vector3 m_position = new Vector3(0, 0, 10);
         protected Vector3 m_up = Vector3.Up;
         protected Vector3 m_direction;
 
@@ -180,17 +180,17 @@ namespace Raven
         /// <summary>
         /// Yaw of the camera in radians.
         /// </summary>
-        public double Yaw
+        public float Yaw
         {
-            get { return Math.PI - Math.Atan2(m_direction.X, m_direction.Z); }
+            get { return (float)(Math.PI - Math.Atan2(m_direction.X, m_direction.Z)); }
         }
 
         /// <summary>
         /// Pitch of the camera in radians.
         /// </summary>
-        public double Pitch
+        public float Pitch
         {
-            get { return Math.Asin(m_direction.Y); }
+            get { return (float)Math.Asin(m_direction.Y); }
         }
 
 

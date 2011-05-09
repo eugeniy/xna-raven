@@ -19,9 +19,17 @@ namespace Raven
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        BasicEffect effect;
+
+        Camera m_camera;
+        Statistics m_stats;
+
+        VertexPositionColor[] vertices;
+
         public Game()
         {
             graphics = new GraphicsDeviceManager(this);
+            graphics.PreferMultiSampling = true;
             Content.RootDirectory = "Content";
         }
 
@@ -34,6 +42,11 @@ namespace Raven
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+            m_camera = new Camera(this);
+            Components.Add(m_camera);
+
+            m_stats = new Statistics(this);
+            Components.Add(m_stats);
 
             base.Initialize();
         }
@@ -48,6 +61,17 @@ namespace Raven
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             // TODO: use this.Content to load your game content here
+
+            effect = new BasicEffect(GraphicsDevice);
+
+            vertices = new VertexPositionColor[3];
+
+            vertices[0].Position = new Vector3(-0.5f, -0.5f, 0f);
+            vertices[0].Color = Color.Red;
+            vertices[1].Position = new Vector3(0, 0.5f, 0f);
+            vertices[1].Color = Color.Green;
+            vertices[2].Position = new Vector3(0.5f, -0.5f, 0f);
+            vertices[2].Color = Color.Yellow;
         }
 
         /// <summary>
@@ -57,6 +81,7 @@ namespace Raven
         protected override void UnloadContent()
         {
             // TODO: Unload any non ContentManager content here
+            effect.Dispose();
         }
 
         /// <summary>
@@ -71,6 +96,9 @@ namespace Raven
                 this.Exit();
 
             // TODO: Add your update logic here
+            m_stats["Position"] = String.Format("({0:0.###}, {1:0.###}, {2:0.###})", m_camera.Position.X, m_camera.Position.Y, m_camera.Position.Z);
+            m_stats["Yaw"] = String.Format("{0:0.###}", MathHelper.ToDegrees(m_camera.Yaw));
+            m_stats["Pitch"] = String.Format("{0:0.###}", MathHelper.ToDegrees(m_camera.Pitch));
 
             base.Update(gameTime);
         }
@@ -81,9 +109,21 @@ namespace Raven
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
+            GraphicsDevice.Clear(Color.SlateGray);
 
             // TODO: Add your drawing code here
+            
+            effect.World = Matrix.Identity;
+            effect.View = m_camera.View;
+            effect.Projection = m_camera.Projection;
+            effect.VertexColorEnabled = true;
+
+            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
+            {
+                pass.Apply();
+                GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, 1, VertexPositionColor.VertexDeclaration);
+            }
+
 
             base.Draw(gameTime);
         }
