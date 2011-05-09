@@ -103,7 +103,7 @@ namespace Raven
             if (keyboard.IsKeyDown(Keys.Space))
                 m_position += m_up * m_speed;
 
-            if (keyboard.IsKeyDown(Keys.LeftControl) || keyboard.IsKeyDown(Keys.C))
+            if (keyboard.IsKeyDown(Keys.LeftControl) || keyboard.IsKeyDown(Keys.X))
                 m_position -= m_up * m_speed;
 
 
