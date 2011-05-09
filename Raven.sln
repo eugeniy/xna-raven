@@ -1,9 +1,9 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raven", "Raven\Raven\Raven.csproj", "{D60F4DAC-1350-4778-BC5E-439E72F9DC1B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Raven", "Source\Raven.csproj", "{D60F4DAC-1350-4778-BC5E-439E72F9DC1B}"
 EndProject
-Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "RavenContent", "Raven\RavenContent\RavenContent.contentproj", "{DA8B41AA-9E42-4E1E-88D3-9179EF5C66E2}"
+Project("{96E2B04D-8817-42C6-938A-82C39BA4D311}") = "RavenContent", "Content\RavenContent.contentproj", "{DA8B41AA-9E42-4E1E-88D3-9179EF5C66E2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

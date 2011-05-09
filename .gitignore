@@ -2,5 +2,6 @@
 *.suo
 *.vsp
 *.cachefile
+*.csproj.user
 bin
 obj
