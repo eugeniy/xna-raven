@@ -28,6 +28,7 @@ namespace Raven
 
         public Game()
         {
+            this.IsMouseVisible = true;
             graphics = new GraphicsDeviceManager(this);
             graphics.PreferMultiSampling = true;
             Content.RootDirectory = "Content";
@@ -50,6 +51,36 @@ namespace Raven
 
             base.Initialize();
         }
+
+
+        /// <summary>
+        /// Handle the event when game gains focus.
+        /// </summary>
+        /// <param name="sender">The Game.</param>
+        /// <param name="args">Arguments for the Activated event.</param>
+        protected override void OnActivated(object sender, EventArgs args)
+        {
+            base.OnActivated(sender, args);
+
+            // Reenable camera if it is not active
+            if (!Components.Contains(m_camera))
+                Components.Add(m_camera);
+        }
+
+
+        /// <summary>
+        /// Handle the event when game loses focus.
+        /// </summary>
+        /// <param name="sender">The Game.</param>
+        /// <param name="args">Arguments for the Deactivated event.</param>
+        protected override void OnDeactivated(object sender, EventArgs args)
+        {
+            base.OnDeactivated(sender, args);
+
+            // Disable the camera, it's important since it steals the mouse focus
+            Components.Remove(m_camera);
+        }
+
 
         /// <summary>
         /// LoadContent will be called once per game and is the place to load
@@ -96,6 +127,11 @@ namespace Raven
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 this.Exit();
+
+            // Enter fullscreen
+            else if (Keyboard.GetState().IsKeyDown(Keys.RightAlt) && Keyboard.GetState().IsKeyDown(Keys.Enter))
+                graphics.ToggleFullScreen();
+
 
             // TODO: Add your update logic here
             m_stats["Position"] = String.Format("({0:0.###}, {1:0.###}, {2:0.###})", m_camera.Position.X, m_camera.Position.Y, m_camera.Position.Z);

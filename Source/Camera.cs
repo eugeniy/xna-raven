@@ -13,12 +13,13 @@ namespace Raven
         protected Vector3 m_up = Vector3.Up;
         protected Vector3 m_direction;
 
+        Quaternion m_rotation = Quaternion.Identity;
+
         protected const float m_pitchLimit = 1.4f;
 
         protected const float m_speed = 0.25f;
         protected const float m_mouseSpeedX = 0.0045f;
         protected const float m_mouseSpeedY = 0.0025f;
-        protected const int m_edgeSize = 20;
 
         protected int m_windowWidth;
         protected int m_windowHeight;
@@ -70,9 +71,7 @@ namespace Raven
         /// </summary>
         public override void Initialize()
         {
-            // Lock and center the mouse
             m_prevMouse = Mouse.GetState();
-            LockMouse(ref m_prevMouse);
 
             base.Initialize();
         }
@@ -108,22 +107,25 @@ namespace Raven
                 m_position -= m_up * m_speed;
 
 
-            // Calculate yaw to look around with a mouse
-            m_direction = Vector3.Transform(m_direction,
-                Matrix.CreateFromAxisAngle(m_up, -m_mouseSpeedX * (mouse.X - m_prevMouse.X))
-            );
-
-            // Pitch is limited to m_pitchLimit
-            float angle = m_mouseSpeedY * (mouse.Y - m_prevMouse.Y);
-            if ((Pitch < m_pitchLimit || angle > 0) && (Pitch > -m_pitchLimit || angle < 0))
+            if (mouse != m_prevMouse)
             {
-                m_direction = Vector3.Transform(m_direction,
-                    Matrix.CreateFromAxisAngle(Vector3.Cross(m_up, m_direction), angle)
-                );
+                float yawChange = -m_mouseSpeedX * (mouse.X - m_prevMouse.X);
+
+                // For the ground camera, we want to limit how far up or down it can point
+                float angle = m_mouseSpeedY * (mouse.Y - m_prevMouse.Y);
+                float pitchChange = ((Pitch < m_pitchLimit || angle > 0) && (Pitch > -m_pitchLimit || angle < 0)) ? angle : 0;
+
+                m_rotation = CreateRotation(yawChange, pitchChange, 0, m_direction, m_up);
+                m_direction = Vector3.Transform(m_direction, m_rotation);
+
+                // Up vector should stay constant unless we're doing flying or vehicles
+                // m_up = Vector3.Transform(m_up, m_rotation);
+
+                // Reset the position of the cursor to the center
+                Mouse.SetPosition(m_windowWidth / 2, m_windowHeight / 2);
+                m_prevMouse = Mouse.GetState();
             }
 
-            LockMouse(ref mouse);
-            m_prevMouse = mouse;
         }
 
 
@@ -143,28 +145,30 @@ namespace Raven
 
 
         /// <summary>
+        /// Creates a rotation Quaternion.
+        /// </summary>
+        /// <param name="yaw">Change to the yaw, side to side movement of the camera.</param>
+        /// <param name="pitch">Change to the pitch, up and down movement of the camera.</param>
+        /// <param name="roll">Change to the roll, barrel rotation of the camera.</param>
+        /// <param name="direction">Direction vector.</param>
+        /// <param name="up">Up vector.</param>
+        /// <returns></returns>
+        protected Quaternion CreateRotation(float yaw, float pitch, float roll, Vector3 direction, Vector3 up)
+        {
+            var output = Quaternion.CreateFromAxisAngle(up, yaw) *
+                Quaternion.CreateFromAxisAngle(Vector3.Cross(up, direction), pitch) *
+                Quaternion.CreateFromAxisAngle(direction, roll);
+            output.Normalize();
+            return output;
+        }
+
+
+        /// <summary>
         /// Create a view matrix using camera vectors.
         /// </summary>
         protected Matrix CreateLookAt()
         {
             return Matrix.CreateLookAt(m_position, m_position + m_direction, m_up);
-        }
-
-
-        /// <summary>
-        /// Lock the mouse inside the window, preventing it from leaving.
-        /// </summary>
-        protected virtual void LockMouse(ref MouseState mouse)
-        {
-            if (mouse.X < m_edgeSize || mouse.X > m_windowWidth - m_edgeSize
-                || mouse.Y < m_edgeSize || mouse.Y > m_windowHeight - m_edgeSize)
-            {
-                Mouse.SetPosition(m_windowWidth / 2, m_windowHeight / 2);
-                mouse = Mouse.GetState();
-
-                // Resetting previous state will prevent camera from rotating back
-                m_prevMouse = mouse;
-            }
         }
 
 
