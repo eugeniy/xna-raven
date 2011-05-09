@@ -13,11 +13,11 @@ namespace Raven
     /// </summary>
     public class Statistics : Microsoft.Xna.Framework.DrawableGameComponent
     {
-		protected Dictionary<string, string> m_statistics;
+        protected Dictionary<string, string> m_statistics;
         protected ContentManager m_content;
         protected SpriteBatch m_spriteBatch;
         protected SpriteFont m_font;
-		protected Vector2 m_position = new Vector2(20, 15);
+        protected Vector2 m_position = new Vector2(20, 15);
 
         protected int m_frameRate = 0;
         protected int m_frameCounter = 0;
@@ -40,8 +40,8 @@ namespace Raven
         public override void Initialize()
         {
             // TODO: Add your initialization code here
-			
-			// By default, this class only sets the frames per second statistic
+
+            // By default, this class only sets the frames per second statistic
             m_statistics = new Dictionary<string, string>();
             m_statistics["FPS"] = "0";
 
@@ -85,7 +85,7 @@ namespace Raven
                 m_elapsedTime -= TimeSpan.FromSeconds(1);
                 m_frameRate = m_frameCounter;
                 m_frameCounter = 0;
-				m_statistics["FPS"] = m_frameRate.ToString();
+                m_statistics["FPS"] = m_frameRate.ToString();
             }
 
             base.Update(gameTime);
