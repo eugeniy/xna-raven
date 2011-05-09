@@ -19,7 +19,7 @@ namespace Raven
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        BasicEffect effect;
+        Effect effect;
 
         Camera m_camera;
         Statistics m_stats;
@@ -62,7 +62,9 @@ namespace Raven
 
             // TODO: use this.Content to load your game content here
 
-            effect = new BasicEffect(GraphicsDevice);
+            // Load my basic shader!
+            effect = Content.Load<Effect>(@"Shaders\Simple");
+
 
             vertices = new VertexPositionColor[3];
 
@@ -112,11 +114,11 @@ namespace Raven
             GraphicsDevice.Clear(Color.SlateGray);
 
             // TODO: Add your drawing code here
-            
-            effect.World = Matrix.Identity;
-            effect.View = m_camera.View;
-            effect.Projection = m_camera.Projection;
-            effect.VertexColorEnabled = true;
+
+            effect.CurrentTechnique = effect.Techniques["Simple"];
+            effect.Parameters["World"].SetValue(Matrix.Identity);
+            effect.Parameters["View"].SetValue(m_camera.View);
+            effect.Parameters["Projection"].SetValue(m_camera.Projection);
 
             foreach (EffectPass pass in effect.CurrentTechnique.Passes)
             {
