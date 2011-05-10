@@ -21,7 +21,7 @@ namespace RavenPipeline
     public class SkydomeProcessor : ContentProcessor<EffectContent, SkydomeContent>
     {
         protected const int m_width = 32;
-        protected const int m_height = 16;
+        protected const int m_height = 32;
         protected const int m_triangleCount = (m_width - 1) * (m_height - 2) * 2;
 
 

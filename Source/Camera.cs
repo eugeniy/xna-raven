@@ -18,7 +18,7 @@ namespace Raven
         protected const float m_pitchLimit = 1.4f;
 
         protected const float m_nearPlaneDistance = 0.01f;
-        protected const float m_farPlaneDistance = 5000;
+        protected const float m_farPlaneDistance = 100;
 
         protected const float m_speed = 0.25f;
         protected const float m_mouseSpeedX = 0.0045f;
@@ -192,12 +192,22 @@ namespace Raven
             get { return (float)(Math.PI - Math.Atan2(m_direction.X, m_direction.Z)); }
         }
 
+
         /// <summary>
         /// Pitch of the camera in radians.
         /// </summary>
         public float Pitch
         {
             get { return (float)Math.Asin(m_direction.Y); }
+        }
+
+
+        /// <summary>
+        /// Distance to the far plane of the camera frustum.
+        /// </summary>
+        public float FarPlane
+        {
+            get { return m_farPlaneDistance; }
         }
 
 

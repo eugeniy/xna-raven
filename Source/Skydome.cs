@@ -18,56 +18,56 @@ namespace Raven
         public Effect Effect;
 
 
-
-        public Skydome()
+        /// <summary>
+        /// Apply the shader effect to all meshes in the model.
+        /// TODO: Figure out how to to do this when model and effect are automatically serialized.
+        /// </summary>
+        public void Initialize()
         {
+            if (!Effect.Equals(Model.Meshes[0].MeshParts[0].Effect))
+                Model.Meshes[0].MeshParts[0].Effect = Effect.Clone();
         }
 
 
-
+        /// <summary>
+        /// Display the skydome using the loaded shader.
+        /// </summary>
+        /// <param name="gameTime">Snapshot of the game timing state.</param>
+        /// <param name="camera">Reference to the instance of the camera class.</param>
+        /// <param name="graphics">Reference to the graphics device.</param>
         public void Draw(GameTime gameTime, Camera camera, GraphicsDevice graphics)
         {
-
             // Set renderstates for drawing the sky. For maximum efficiency, we draw the sky
             // after everything else, with depth mode set to read only. This allows the GPU to
             // entirely skip drawing sky in the areas that are covered by other solid objects.
-            //GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
-            //GraphicsDevice.BlendState = BlendState.Opaque;
+            graphics.DepthStencilState = DepthStencilState.DepthRead;
 
-            // Because the sky is infinitely far away, it should not move sideways as the camera
-            // moves around the world, so we force the view matrix translation to zero. This
-            // way the sky only takes the camera rotation into account, ignoring its position.
-            //m_camera.View.Translation = Vector3.Zero;
 
-            // The sky should be drawn behind everything else, at the far clip plane.
-            // We achieve this by tweaking the projection matrix to force z=w.
-            //projection.M13 = projection.M14;
-            //projection.M23 = projection.M24;
-            //projection.M33 = projection.M34;
-            //projection.M43 = projection.M44;
+            // Copy model transforms to a matrix.
+            var transforms = new Matrix[Model.Bones.Count];
+            Model.CopyAbsoluteBoneTransformsTo(transforms);
 
-            RasterizerState rs = new RasterizerState();
-            rs.FillMode = FillMode.WireFrame;
-            rs.CullMode = CullMode.None;
-            graphics.RasterizerState = rs;
+            // The sky is infinitely far away, it should move with the camera and as large as its far plane allows.
+            Matrix World = Matrix.CreateScale(camera.FarPlane) * Matrix.CreateTranslation(camera.Position);
 
 
             // Draw the sky model.
             foreach (ModelMesh mesh in Model.Meshes)
             {
-                foreach (BasicEffect effect in mesh.Effects)
+                foreach (Effect effect in mesh.Effects)
                 {
-                    effect.View = camera.View;
-                    effect.Projection = camera.Projection;
+                    effect.CurrentTechnique = effect.Techniques["Simple"];
+                    effect.Parameters["World"].SetValue(transforms[mesh.ParentBone.Index] * World);
+                    effect.Parameters["View"].SetValue(camera.View);
+                    effect.Parameters["Projection"].SetValue(camera.Projection);
                 }
 
                 mesh.Draw();
             }
 
+
             // Set modified renderstates back to their default values.
-            //GraphicsDevice.DepthStencilState = DepthStencilState.Default;
-
-
+            graphics.DepthStencilState = DepthStencilState.Default;
         }
 
     }

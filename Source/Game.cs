@@ -100,7 +100,7 @@ namespace Raven
 
             // Load the generated skydome
             m_dome = Content.Load<Skydome>(@"Shaders\Sky");
-
+            m_dome.Initialize();
 
             vertices = new VertexPositionColor[3];
 
