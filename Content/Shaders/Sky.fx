@@ -1,31 +1,45 @@
 float4x4 World;
 float4x4 View;
 float4x4 Projection;
+int Time;
 
-struct VertexShaderInput
-{
-    float4 Position : POSITION0;
-};
+
 
 struct VertexShaderOutput
 {
     float4 Position : POSITION0;
+    float4 ObjectPosition : TEXCOORD1;
 };
 
-VertexShaderOutput VertexShaderFunction(VertexShaderInput input)
+struct PixelToFrame
 {
-    VertexShaderOutput output;
+    float4 Color : COLOR0;
+};
 
-    float4 worldPosition = mul(input.Position, World);
+
+VertexShaderOutput VertexShaderFunction(float4 Position : POSITION0)
+{
+    VertexShaderOutput output = (VertexShaderOutput)0;
+
+    float4 worldPosition = mul(Position, World);
     float4 viewPosition = mul(worldPosition, View);
-    output.Position = mul(viewPosition, Projection);
 
+    output.Position = mul(viewPosition, Projection);
+    output.ObjectPosition = Position;
+    
     return output;
 }
 
-float4 PixelShaderFunction(VertexShaderOutput input) : COLOR0
+PixelToFrame PixelShaderFunction(VertexShaderOutput input)
 {
-    return float4(1, 0, 0, 1);
+    PixelToFrame output = (PixelToFrame)0;
+
+    float4 sun = float4(1, 1, 1, saturate(cos((float)Time/1000)));
+    float4 ground = float4(cos((float)Time/6001), 0.6, 0.5, 1);
+    float4 sky = lerp(float4(0.1, 0.55, 0.9, saturate(sin((float)Time/1000)+0.5)), sun, saturate(input.ObjectPosition.x));
+    output.Color = lerp(ground, sky, saturate(input.ObjectPosition.y/0.5));
+
+    return output;
 }
 
 technique Simple

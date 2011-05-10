@@ -21,7 +21,7 @@ namespace RavenPipeline
     public class SkydomeProcessor : ContentProcessor<EffectContent, SkydomeContent>
     {
         protected const int m_width = 32;
-        protected const int m_height = 32;
+        protected const int m_height = 16;
         protected const int m_triangleCount = (m_width - 1) * (m_height - 2) * 2;
 
 
@@ -59,17 +59,17 @@ namespace RavenPipeline
             {
                 for (int i = 0; i < m_width - 1; i++)
                 {
-                    builder.AddTriangleVertex(vertices[(j) * m_width + i]);
+                    builder.AddTriangleVertex(vertices[j * m_width + i]);
                     builder.AddTriangleVertex(vertices[(j + 1) * m_width + i + 1]);
 
-                    builder.AddTriangleVertex(vertices[(j) * m_width + i + 1]);
-                    builder.AddTriangleVertex(vertices[(j) * m_width + i]);
+                    builder.AddTriangleVertex(vertices[j * m_width + i + 1]);
+                    builder.AddTriangleVertex(vertices[j * m_width + i]);
 
                     builder.AddTriangleVertex(vertices[(j + 1) * m_width + i]);
                     builder.AddTriangleVertex(vertices[(j + 1) * m_width + i + 1]);
                 }
             }
-
+            
             for (int i = 0; i < m_width - 1; i++)
             {
                 builder.AddTriangleVertex(vertices[(m_height - 2) * m_width]);
@@ -79,7 +79,7 @@ namespace RavenPipeline
                 builder.AddTriangleVertex(vertices[(m_height - 3) * m_width + i + 1]);
                 builder.AddTriangleVertex(vertices[(m_height - 3) * m_width + i]);
             }
-
+            
 
             // Chain to the ModelProcessor so it can convert the mesh we just generated.
             MeshContent skyMesh = builder.FinishMesh();
@@ -88,6 +88,9 @@ namespace RavenPipeline
             SkydomeContent output = new SkydomeContent();
             output.Model = context.Convert<MeshContent, ModelContent>(skyMesh, "ModelProcessor");
             output.Effect = context.Convert<EffectContent, CompiledEffectContent>(input, "EffectProcessor");
+            output.Count = m_triangleCount;
+            output.Width = m_width;
+            output.Height = m_height;
 
             return output;
         }

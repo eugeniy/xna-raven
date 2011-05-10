@@ -14,5 +14,8 @@ namespace RavenPipeline
     {
         public ModelContent Model;
         public CompiledEffectContent Effect;
+        public int Count;
+        public int Width;
+        public int Height;
     }
 }

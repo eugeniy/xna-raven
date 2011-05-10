@@ -16,6 +16,9 @@ namespace Raven
     {
         public Model Model;
         public Effect Effect;
+        public int Count;
+        public int Width;
+        public int Height;
 
 
         /// <summary>
@@ -51,6 +54,11 @@ namespace Raven
             Matrix World = Matrix.CreateScale(camera.FarPlane) * Matrix.CreateTranslation(camera.Position);
 
 
+            //var ts = new RasterizerState();
+            //ts.FillMode = FillMode.WireFrame;
+            //graphics.RasterizerState = ts;
+
+
             // Draw the sky model.
             foreach (ModelMesh mesh in Model.Meshes)
             {
@@ -60,6 +68,7 @@ namespace Raven
                     effect.Parameters["World"].SetValue(transforms[mesh.ParentBone.Index] * World);
                     effect.Parameters["View"].SetValue(camera.View);
                     effect.Parameters["Projection"].SetValue(camera.Projection);
+                    effect.Parameters["Time"].SetValue(gameTime.TotalGameTime.Seconds * 1000 + gameTime.TotalGameTime.Milliseconds);
                 }
 
                 mesh.Draw();
