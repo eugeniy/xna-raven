@@ -17,67 +17,67 @@ namespace RavenPipeline
     ///
     /// This should be part of a Content Pipeline Extension Library project.
     /// </summary>
-    [ContentProcessor(DisplayName = "Skydome Processor")]
+    [ContentProcessor(DisplayName = "Raven Skydome Processor")]
     public class SkydomeProcessor : ContentProcessor<EffectContent, SkydomeContent>
     {
-        const float cylinderSize = 100;
-        const int cylinderSegments = 32;
+        protected const int m_width = 32;
+        protected const int m_height = 16;
+        protected const int m_triangleCount = (m_width - 1) * (m_height - 2) * 2;
+
 
         public override SkydomeContent Process(EffectContent input, ContentProcessorContext context)
         {
-            MeshBuilder builder = MeshBuilder.StartMesh("sky");
+            var vertices = new List<int>();
+            double theta, phi;
 
-            // Create two rings of vertices around the top and bottom of the cylinder.
-            List<int> topVertices = new List<int>();
-            List<int> bottomVertices = new List<int>();
-
-            for (int i = 0; i < cylinderSegments; i++)
-            {
-                float angle = MathHelper.TwoPi * i / cylinderSegments;
-
-                float x = (float)Math.Cos(angle) * cylinderSize;
-                float z = (float)Math.Sin(angle) * cylinderSize;
-
-                topVertices.Add(builder.CreatePosition(x, cylinderSize, z));
-                bottomVertices.Add(builder.CreatePosition(x, -cylinderSize, z));
-            }
-
-            // Create two center vertices, used for closing the top and bottom.
-            int topCenterVertex = builder.CreatePosition(0, cylinderSize * 2, 0);
-            int bottomCenterVertex = builder.CreatePosition(0, -cylinderSize * 2, 0);
-
+            MeshBuilder builder = MeshBuilder.StartMesh("Sphere");
             builder.SetMaterial(new BasicMaterialContent());
 
 
-
-            // Create the individual triangles that make up our skydome.
-            for (int i = 0; i < cylinderSegments; i++)
+            // Create sphere vertices
+            for (int j = 1; j < m_height - 1; j++)
             {
-                int j = (i + 1) % cylinderSegments;
+                for (int i = 0; i < m_width; i++)
+                {
+                    theta = j / (float)(m_height - 1) * Math.PI;
+                    phi = i / (float)(m_width - 1) * Math.PI * 2;
 
-                // Calculate texture coordinates for this segment of the cylinder.
-                float u1 = (float)i / (float)cylinderSegments;
-                float u2 = (float)(i + 1) / (float)cylinderSegments;
+                    vertices.Add(builder.CreatePosition(
+                        (float)(Math.Sin(theta) * Math.Cos(phi)),
+                        (float)Math.Cos(theta),
+                        (float)(-Math.Sin(theta) * Math.Sin(phi))
+                    ));
+                }
+            }
+            // Add poles of the sphere
+            vertices.Add(builder.CreatePosition(0, 1, 0));
+            vertices.Add(builder.CreatePosition(0, -1, 0));
 
-                // Two triangles form a quad, one side segment of the cylinder.
-                builder.AddTriangleVertex(topVertices[i]);
-                builder.AddTriangleVertex(topVertices[j]);
-                builder.AddTriangleVertex(bottomVertices[i]);
 
-                builder.AddTriangleVertex(topVertices[j]);
-                builder.AddTriangleVertex(bottomVertices[j]);
-                builder.AddTriangleVertex(bottomVertices[i]);
+            // Draw individual triangles
+            for (int j = 0; j < m_height - 3; j++)
+            {
+                for (int i = 0; i < m_width - 1; i++)
+                {
+                    builder.AddTriangleVertex(vertices[(j) * m_width + i]);
+                    builder.AddTriangleVertex(vertices[(j + 1) * m_width + i + 1]);
 
-                // Triangle fanning inward to fill the top above this segment.
-                builder.AddTriangleVertex(topCenterVertex);
-                builder.AddTriangleVertex(topVertices[j]);
-                builder.AddTriangleVertex(topVertices[i]);
+                    builder.AddTriangleVertex(vertices[(j) * m_width + i + 1]);
+                    builder.AddTriangleVertex(vertices[(j) * m_width + i]);
 
-                // Triangle fanning inward to fill the bottom below this segment.
-                builder.AddTriangleVertex(bottomCenterVertex);
-                builder.AddTriangleVertex(bottomVertices[i]);
-                builder.AddTriangleVertex(bottomVertices[j]);
+                    builder.AddTriangleVertex(vertices[(j + 1) * m_width + i]);
+                    builder.AddTriangleVertex(vertices[(j + 1) * m_width + i + 1]);
+                }
+            }
 
+            for (int i = 0; i < m_width - 1; i++)
+            {
+                builder.AddTriangleVertex(vertices[(m_height - 2) * m_width]);
+                builder.AddTriangleVertex(vertices[i]);
+                builder.AddTriangleVertex(vertices[i + 1]);
+                builder.AddTriangleVertex(vertices[(m_height - 2) * m_width + 1]);
+                builder.AddTriangleVertex(vertices[(m_height - 3) * m_width + i + 1]);
+                builder.AddTriangleVertex(vertices[(m_height - 3) * m_width + i]);
             }
 
 
@@ -87,17 +87,9 @@ namespace RavenPipeline
             // Create the output object.
             SkydomeContent output = new SkydomeContent();
             output.Model = context.Convert<MeshContent, ModelContent>(skyMesh, "ModelProcessor");
-
-            //EffectProcessor compiler = new EffectProcessor();
-            //CompiledEffectContent compiledContent = compiler.Process(input, context);
-            //return new TOutput(compiledContent.GetEffectCode());
             output.Effect = context.Convert<EffectContent, CompiledEffectContent>(input, "EffectProcessor");
 
             return output;
-
-            // TODO: process the input object, and return the modified data.
-
-
         }
     }
 }
