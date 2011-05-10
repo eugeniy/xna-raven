@@ -23,6 +23,7 @@ namespace Raven
 
         Camera m_camera;
         Statistics m_stats;
+        Skydome m_dome;
 
         VertexPositionColor[] vertices;
 
@@ -97,6 +98,9 @@ namespace Raven
             // Load my basic shader!
             effect = Content.Load<Effect>(@"Shaders\Simple");
 
+            // Load the generated skydome
+            m_dome = Content.Load<Skydome>(@"Shaders\Sky");
+
 
             vertices = new VertexPositionColor[3];
 
@@ -151,6 +155,9 @@ namespace Raven
             GraphicsDevice.Clear(Color.SlateGray);
 
             // TODO: Add your drawing code here
+
+
+            m_dome.Draw(gameTime, m_camera, GraphicsDevice);
 
             effect.CurrentTechnique = effect.Techniques["Simple"];
             effect.Parameters["World"].SetValue(Matrix.Identity);

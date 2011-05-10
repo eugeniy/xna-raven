@@ -18,7 +18,7 @@ namespace Raven
         protected const float m_pitchLimit = 1.4f;
 
         protected const float m_nearPlaneDistance = 0.01f;
-        protected const float m_farPlaneDistance = 50;
+        protected const float m_farPlaneDistance = 5000;
 
         protected const float m_speed = 0.25f;
         protected const float m_mouseSpeedX = 0.0045f;
@@ -204,13 +204,13 @@ namespace Raven
         /// <summary>
         /// View matrix accessor.
         /// </summary>
-        public Matrix View { get; protected set; }
+        public Matrix View { get; set; }
 
 
         /// <summary>
         /// Projection matrix accessor.
         /// </summary>
-        public Matrix Projection { get; protected set; }
+        public Matrix Projection { get; set; }
 
     }
 }

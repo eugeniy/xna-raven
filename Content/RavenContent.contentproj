@@ -55,6 +55,19 @@
       <Processor>EffectProcessor</Processor>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Shaders\Sky.fx">
+      <Name>Sky</Name>
+      <Importer>EffectImporter</Importer>
+      <Processor>SkydomeProcessor</Processor>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RavenPipeline\RavenPipeline.csproj">
+      <Project>{AD571BCD-F9D3-48AE-A13B-716D3B2BBD82}</Project>
+      <Name>RavenPipeline</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\XNA Game Studio\$(XnaFrameworkVersion)\Microsoft.Xna.GameStudio.ContentPipeline.targets" />
   <!--  To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
