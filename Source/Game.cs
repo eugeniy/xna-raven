@@ -137,8 +137,17 @@ namespace Raven
             else if (Keyboard.GetState().IsKeyDown(Keys.RightAlt) && Keyboard.GetState().IsKeyDown(Keys.Enter))
                 graphics.ToggleFullScreen();
 
+            // Display wire frames and don't cull when tab is pressed
+            else if (Keyboard.GetState().IsKeyDown(Keys.Tab))
+            {
+                var rasterizer = new RasterizerState();
+                rasterizer.FillMode = FillMode.WireFrame;
+                rasterizer.CullMode = CullMode.None;
+                GraphicsDevice.RasterizerState = rasterizer;
+            }
 
-            // TODO: Add your update logic here
+
+            // Display some debug information
             m_stats["Position"] = String.Format("({0:0.###}, {1:0.###}, {2:0.###})", m_camera.Position.X, m_camera.Position.Y, m_camera.Position.Z);
             m_stats["Yaw"] = String.Format("{0:0.###}", MathHelper.ToDegrees(m_camera.Yaw));
             m_stats["Pitch"] = String.Format("{0:0.###}", MathHelper.ToDegrees(m_camera.Pitch));
@@ -153,9 +162,8 @@ namespace Raven
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.SlateGray);
+            GraphicsDevice.Clear(Color.DarkSlateGray);
 
-            // TODO: Add your drawing code here
 
 
             m_dome.Draw(gameTime, m_camera, GraphicsDevice);

@@ -54,11 +54,6 @@ namespace Raven
             Matrix World = Matrix.CreateScale(camera.FarPlane) * Matrix.CreateTranslation(camera.Position);
 
 
-            //var ts = new RasterizerState();
-            //ts.FillMode = FillMode.WireFrame;
-            //graphics.RasterizerState = ts;
-
-
             // Draw the sky model.
             foreach (ModelMesh mesh in Model.Meshes)
             {
