@@ -99,8 +99,9 @@ namespace Raven
             effect = Content.Load<Effect>(@"Shaders\Simple");
 
             // Load the generated skydome
-            m_dome = Content.Load<Skydome>(@"Shaders\Sky");
-            m_dome.Initialize();
+            //m_dome = Content.Load<Skydome>(@"Shaders\Sky");
+            //m_dome.Initialize();
+            m_dome = new Skydome(GraphicsDevice, effect);
 
             vertices = new VertexPositionColor[3];
 
