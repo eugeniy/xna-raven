@@ -69,8 +69,7 @@ namespace Raven
             base.OnActivated(sender, args);
 
             // Reenable camera if it is not active
-            if (!Components.Contains(m_camera))
-                Components.Add(m_camera);
+            m_camera.Enabled = true;
         }
 
 
@@ -84,7 +83,7 @@ namespace Raven
             base.OnDeactivated(sender, args);
 
             // Disable the camera, it's important since it steals the mouse focus
-            Components.Remove(m_camera);
+            m_camera.Enabled = false;
         }
 
 
