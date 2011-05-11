@@ -1,14 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
-using Microsoft.Xna.Framework.GamerServices;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
-using Microsoft.Xna.Framework.Media;
-
 
 namespace Raven
 {
@@ -22,12 +16,7 @@ namespace Raven
 
         protected const int m_width = 32;
         protected const int m_height = 16;
-
-        public Model Model;
-        public Effect Effect;
-        public int Count;
-        public int Width;
-        public int Height;
+        protected const int m_triangleCount = (m_width - 1) * (m_height - 2) * 2;
 
 
         public Skydome(Game game, ContentManager content) : base(game)
@@ -35,30 +24,43 @@ namespace Raven
             m_content = content;
         }
 
+
+        /// <summary>
+        /// Load content used by the component and generate the skydome.
+        /// </summary>
         protected override void LoadContent()
         {
             m_effect = m_content.Load<Effect>(@"Shaders\Sky");
 
-            GenerateSkydome(m_width, m_height);
+            // Load the skydome into memory, ready to be drawn
+            LoadToBuffer(m_width, m_height);
 
             base.LoadContent();
         }
 
 
+        /// <summary>
+        /// Dispose of all content and resources created by the component.
+        /// </summary>
+        protected override void UnloadContent()
+        {
+            m_effect.Dispose();
+            m_vertexBuffer.Dispose();
+            m_indexBuffer.Dispose();
+
+            base.UnloadContent();
+        }
 
 
         /// <summary>
-        /// Generates the skydome and places the result into vertex buffers.
+        /// Generates an array of skydome vertices.
         /// </summary>
         /// <param name="width">Number of vertices along the equator of the sphere.</param>
         /// <param name="height">Number of vertices from one pole to another.</param>
-        protected void GenerateSkydome(int width, int height)
+        protected VertexPositionColor[] GenerateVertices(int width, int height)
         {
             var vertices = new List<VertexPositionColor>();
-            var indices = new List<int>();
             double theta, phi;
-
-            //var verts = new VertexPositionColor
 
             // Create sphere vertices
             for (int j = 1; j < height - 1; j++)
@@ -80,6 +82,18 @@ namespace Raven
             vertices.Add(new VertexPositionColor(new Vector3(0, 1, 0), Color.Magenta));
             vertices.Add(new VertexPositionColor(new Vector3(0, -1, 0), Color.Magenta));
 
+            return vertices.ToArray();
+        }
+
+
+        /// <summary>
+        /// Generates an array of skydome indices.
+        /// </summary>
+        /// <param name="width">Number of vertices along the equator of the sphere.</param>
+        /// <param name="height">Number of vertices from one pole to another.</param>
+        protected int[] GenerateIndices(int width, int height)
+        {
+            var indices = new List<int>();
 
             // Create sphere indices
             for (int j = 0; j < height - 3; j++)
@@ -108,16 +122,28 @@ namespace Raven
                 indices.Add((height - 3) * width + i);
             }
 
-            // Allocate memory on the graphics device and copy vertices in it
-            m_vertexBuffer = new VertexBuffer(GraphicsDevice, VertexPositionColor.VertexDeclaration, vertices.Count, BufferUsage.WriteOnly);
-            m_vertexBuffer.SetData(vertices.ToArray());
-
-            // Do the same for indices
-            m_indexBuffer = new IndexBuffer(GraphicsDevice, typeof(int), indices.Count, BufferUsage.WriteOnly);
-            m_indexBuffer.SetData(indices.ToArray());
+            return indices.ToArray();
         }
 
 
+        /// <summary>
+        /// Generates the skydome and places the result into vertex and index buffers.
+        /// </summary>
+        /// <param name="width">Number of vertices along the equator of the sphere.</param>
+        /// <param name="height">Number of vertices from one pole to another.</param>
+        protected void LoadToBuffer(int width, int height)
+        {
+            var vertices = GenerateVertices(width, height);
+            var indices = GenerateIndices(width, height);
+
+            // Allocate memory on the graphics device and copy vertices in it
+            m_vertexBuffer = new VertexBuffer(GraphicsDevice, VertexPositionColor.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
+            m_vertexBuffer.SetData(vertices);
+
+            // Do the same for indices
+            m_indexBuffer = new IndexBuffer(GraphicsDevice, typeof(int), indices.Length, BufferUsage.WriteOnly);
+            m_indexBuffer.SetData(indices);
+        }
 
 
         /// <summary>
