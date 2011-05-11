@@ -12,11 +12,11 @@ using Microsoft.Xna.Framework.Media;
 
 namespace Raven
 {
-    public class Skydome
+    public class Skydome : DrawableGameComponent
     {
-        protected GraphicsDevice m_device;
-        protected Effect m_effect;
+        protected ContentManager m_content;
 
+        protected Effect m_effect;
         protected VertexBuffer m_vertexBuffer;
         protected IndexBuffer m_indexBuffer;
 
@@ -30,28 +30,21 @@ namespace Raven
         public int Height;
 
 
-        public Skydome()
+        public Skydome(Game game, ContentManager content) : base(game)
         {
+            m_content = content;
         }
 
-        public Skydome(GraphicsDevice device, Effect effect)
+        protected override void LoadContent()
         {
-            m_device = device;
-            m_effect = effect;
+            m_effect = m_content.Load<Effect>(@"Shaders\Sky");
 
             GenerateSkydome(m_width, m_height);
+
+            base.LoadContent();
         }
 
 
-        /// <summary>
-        /// Apply the shader effect to all meshes in the model.
-        /// TODO: Figure out how to to do this when model and effect are automatically serialized.
-        /// </summary>
-        public void Initialize()
-        {
-            if (!Effect.Equals(Model.Meshes[0].MeshParts[0].Effect))
-                Model.Meshes[0].MeshParts[0].Effect = Effect.Clone();
-        }
 
 
         /// <summary>
@@ -116,13 +109,15 @@ namespace Raven
             }
 
             // Allocate memory on the graphics device and copy vertices in it
-            m_vertexBuffer = new VertexBuffer(m_device, VertexPositionColor.VertexDeclaration, vertices.Count, BufferUsage.WriteOnly);
+            m_vertexBuffer = new VertexBuffer(GraphicsDevice, VertexPositionColor.VertexDeclaration, vertices.Count, BufferUsage.WriteOnly);
             m_vertexBuffer.SetData(vertices.ToArray());
 
             // Do the same for indices
-            m_indexBuffer = new IndexBuffer(m_device, typeof(int), indices.Count, BufferUsage.WriteOnly);
+            m_indexBuffer = new IndexBuffer(GraphicsDevice, typeof(int), indices.Count, BufferUsage.WriteOnly);
             m_indexBuffer.SetData(indices.ToArray());
         }
+
+
 
 
         /// <summary>
@@ -131,8 +126,13 @@ namespace Raven
         /// <param name="gameTime">Snapshot of the game timing state.</param>
         /// <param name="camera">Reference to the instance of the camera class.</param>
         /// <param name="graphics">Reference to the graphics device.</param>
-        public void Draw(GameTime gameTime, Camera camera, GraphicsDevice graphics)
+        public void Draw(GameTime gameTime, Camera camera)
         {
+            // Set renderstates for drawing the sky. For maximum efficiency, we draw the sky
+            // after everything else, with depth mode set to read only. This allows the GPU to
+            // entirely skip drawing sky in the areas that are covered by other solid objects.
+            GraphicsDevice.DepthStencilState = DepthStencilState.DepthRead;
+
 
             // The sky is infinitely far away, it should move with the camera and as large as its far plane allows.
             Matrix World = Matrix.CreateScale(camera.FarPlane) * Matrix.CreateTranslation(camera.Position);
@@ -142,55 +142,20 @@ namespace Raven
             m_effect.Parameters["World"].SetValue(World);
             m_effect.Parameters["View"].SetValue(camera.View);
             m_effect.Parameters["Projection"].SetValue(camera.Projection);
+            m_effect.Parameters["Time"].SetValue(gameTime.TotalGameTime.Seconds * 1000 + gameTime.TotalGameTime.Milliseconds);
 
-            m_device.Indices = m_indexBuffer;
-            m_device.SetVertexBuffer(m_vertexBuffer);
+            GraphicsDevice.Indices = m_indexBuffer;
+            GraphicsDevice.SetVertexBuffer(m_vertexBuffer);
 
             foreach (EffectPass pass in m_effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
-                m_device.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, m_vertexBuffer.VertexCount, 0, m_indexBuffer.IndexCount / 3);
-            }
-
-
-
-            
-            
-
-            /*
-            // Set renderstates for drawing the sky. For maximum efficiency, we draw the sky
-            // after everything else, with depth mode set to read only. This allows the GPU to
-            // entirely skip drawing sky in the areas that are covered by other solid objects.
-            graphics.DepthStencilState = DepthStencilState.DepthRead;
-
-
-            // Copy model transforms to a matrix.
-            var transforms = new Matrix[Model.Bones.Count];
-            Model.CopyAbsoluteBoneTransformsTo(transforms);
-
-            // The sky is infinitely far away, it should move with the camera and as large as its far plane allows.
-            Matrix World = Matrix.CreateScale(camera.FarPlane) * Matrix.CreateTranslation(camera.Position);
-
-
-            // Draw the sky model.
-            foreach (ModelMesh mesh in Model.Meshes)
-            {
-                foreach (Effect effect in mesh.Effects)
-                {
-                    effect.CurrentTechnique = effect.Techniques["Simple"];
-                    effect.Parameters["World"].SetValue(transforms[mesh.ParentBone.Index] * World);
-                    effect.Parameters["View"].SetValue(camera.View);
-                    effect.Parameters["Projection"].SetValue(camera.Projection);
-                    effect.Parameters["Time"].SetValue(gameTime.TotalGameTime.Seconds * 1000 + gameTime.TotalGameTime.Milliseconds);
-                }
-
-                mesh.Draw();
+                GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, m_vertexBuffer.VertexCount, 0, m_indexBuffer.IndexCount / 3);
             }
 
 
             // Set modified renderstates back to their default values.
-            graphics.DepthStencilState = DepthStencilState.Default;
-            */
+            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
         }
 
     }

@@ -51,6 +51,10 @@ namespace Raven
             m_stats = new Statistics(this);
             Components.Add(m_stats);
 
+            // Load the generated skydome
+            m_dome = new Skydome(this, Content);
+            Components.Add(m_dome);
+
             base.Initialize();
         }
 
@@ -98,10 +102,7 @@ namespace Raven
             // Load my basic shader!
             effect = Content.Load<Effect>(@"Shaders\Simple");
 
-            // Load the generated skydome
-            //m_dome = Content.Load<Skydome>(@"Shaders\Sky");
-            //m_dome.Initialize();
-            m_dome = new Skydome(GraphicsDevice, effect);
+            
 
             vertices = new VertexPositionColor[3];
 
@@ -167,7 +168,7 @@ namespace Raven
 
 
 
-            m_dome.Draw(gameTime, m_camera, GraphicsDevice);
+            m_dome.Draw(gameTime, m_camera);
 
             effect.CurrentTechnique = effect.Techniques["Simple"];
             effect.Parameters["World"].SetValue(Matrix.Identity);

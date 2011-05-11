@@ -59,7 +59,7 @@
     <Compile Include="Shaders\Sky.fx">
       <Name>Sky</Name>
       <Importer>EffectImporter</Importer>
-      <Processor>SkydomeProcessor</Processor>
+      <Processor>EffectProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
