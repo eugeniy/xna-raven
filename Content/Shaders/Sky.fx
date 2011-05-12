@@ -3,12 +3,11 @@ float4x4 View;
 float4x4 Projection;
 int Time;
 
-
-
 struct VertexShaderOutput
 {
     float4 Position : POSITION0;
-    float4 ObjectPosition : TEXCOORD1;
+    float3 Normal : TEXCOORD1;
+    float4 ObjectPosition : TEXCOORD2;
 };
 
 struct PixelToFrame
@@ -17,7 +16,7 @@ struct PixelToFrame
 };
 
 
-VertexShaderOutput VertexShaderFunction(float4 Position : POSITION0)
+VertexShaderOutput VertexShaderFunction(float4 Position : POSITION0, float3 Normal: NORMAL0)
 {
     VertexShaderOutput output = (VertexShaderOutput)0;
 
@@ -25,8 +24,9 @@ VertexShaderOutput VertexShaderFunction(float4 Position : POSITION0)
     float4 viewPosition = mul(worldPosition, View);
 
     output.Position = mul(viewPosition, Projection);
+    output.Normal = normalize(mul(Normal, (float3x3)World));
     output.ObjectPosition = Position;
-    
+
     return output;
 }
 
@@ -39,7 +39,6 @@ PixelToFrame PixelShaderFunction(VertexShaderOutput input)
 
     // Make pixels darker as we go higher from the horizon
     output.Color = lerp(light, dark, input.ObjectPosition.y);
-
 
     return output;
 }
