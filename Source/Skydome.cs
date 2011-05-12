@@ -8,6 +8,24 @@ namespace Raven
 {
     public class Skydome : DrawableGameComponent
     {
+        // Declare a structure to hold skydome vertices.
+        public struct VertexPositionNormal
+        {
+            public Vector3 Position;
+            public Vector3 Normal;
+
+            public VertexPositionNormal(Vector3 position, Vector3 normal)
+            {
+                this.Position = position;
+                this.Normal = normal;
+            }
+
+            public readonly static VertexDeclaration VertexDeclaration = new VertexDeclaration(
+                new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
+                new VertexElement(sizeof(float) * 3, VertexElementFormat.Vector3, VertexElementUsage.Normal, 0)
+            );
+        }
+
         protected ContentManager m_content;
 
         protected Effect m_effect;
@@ -57,9 +75,9 @@ namespace Raven
         /// </summary>
         /// <param name="width">Number of vertices along the equator of the sphere.</param>
         /// <param name="height">Number of vertices from one pole to another.</param>
-        protected VertexPositionColor[] GenerateVertices(int width, int height)
+        protected VertexPositionNormal[] GenerateVertices(int width, int height)
         {
-            var vertices = new List<VertexPositionColor>();
+            var vertices = new List<VertexPositionNormal>();
             double theta, phi;
 
             // Create sphere vertices
@@ -71,18 +89,43 @@ namespace Raven
                     phi = i / (float)(width - 1) * Math.PI * 2;
 
                     // Add a vector with the given position and color
-                    vertices.Add(new VertexPositionColor(new Vector3(
+                    vertices.Add(new VertexPositionNormal(new Vector3(
                         (float)(Math.Sin(theta) * Math.Cos(phi)),
                         (float)Math.Cos(theta),
                         (float)(-Math.Sin(theta) * Math.Sin(phi))
-                    ), Color.Magenta));
+                    ), Vector3.Zero));
                 }
             }
             // Add poles of the sphere
-            vertices.Add(new VertexPositionColor(new Vector3(0, 1, 0), Color.Magenta));
-            vertices.Add(new VertexPositionColor(new Vector3(0, -1, 0), Color.Magenta));
+            vertices.Add(new VertexPositionNormal(new Vector3(0, 1, 0), Vector3.Zero));
+            vertices.Add(new VertexPositionNormal(new Vector3(0, -1, 0), Vector3.Zero));
 
             return vertices.ToArray();
+        }
+
+
+        /// <summary>
+        /// Create a vertex array with calculated normals.
+        /// </summary>
+        /// <param name="vertices">A vertex array, assumes normal values are zero.</param>
+        /// <param name="indices">An index array for the skydome.</param>
+        protected VertexPositionNormal[] CalculateVertexNormals(VertexPositionNormal[] vertices, int[] indices)
+        {
+            for (int i = 0; i < indices.Length / 3; i++)
+            {
+                int index1 = indices[i * 3];
+                int index2 = indices[i * 3 + 1];
+                int index3 = indices[i * 3 + 2];
+
+                Vector3 side1 = vertices[index1].Position - vertices[index3].Position;
+                Vector3 side2 = vertices[index1].Position - vertices[index2].Position;
+                Vector3 normal = Vector3.Cross(side1, side2);
+
+                vertices[index1].Normal += normal;
+                vertices[index2].Normal += normal;
+                vertices[index3].Normal += normal;
+            }
+            return vertices;
         }
 
 
@@ -135,9 +178,10 @@ namespace Raven
         {
             var vertices = GenerateVertices(width, height);
             var indices = GenerateIndices(width, height);
+            vertices = CalculateVertexNormals(vertices, indices);
 
             // Allocate memory on the graphics device and copy vertices in it
-            m_vertexBuffer = new VertexBuffer(GraphicsDevice, VertexPositionColor.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
+            m_vertexBuffer = new VertexBuffer(GraphicsDevice, VertexPositionNormal.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
             m_vertexBuffer.SetData(vertices);
 
             // Do the same for indices
