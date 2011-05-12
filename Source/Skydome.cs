@@ -125,6 +125,11 @@ namespace Raven
                 vertices[index2].Normal += normal;
                 vertices[index3].Normal += normal;
             }
+
+            // Normalize normal vectors
+            for (int i = 0; i < vertices.Length; i++)
+                vertices[i].Normal.Normalize();
+
             return vertices;
         }
 
