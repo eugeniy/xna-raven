@@ -34,8 +34,10 @@ PixelToFrame PixelShaderFunction(VertexShaderOutput input)
 {
     PixelToFrame output = (PixelToFrame)0;
 
+    float smoothTime = sin(smoothstep(0, 60000, Time) * 3.14159 * 2);
+
     float4 light = float4(0.03, 0.33, 0.68, 1);
-    float4 dark = float4(0.02, 0.06, 0.34, 1);
+    float4 dark = lerp(float4(0.02, 0.06, 0.34, 1), float4(0.73, 0.93, 1, 1), smoothTime);
 
     // Make pixels darker as we go higher from the horizon
     output.Color = lerp(light, dark, input.ObjectPosition.y);
