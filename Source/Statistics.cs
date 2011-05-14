@@ -24,12 +24,9 @@ namespace Raven
         protected TimeSpan m_elapsedTime = TimeSpan.Zero;
 
 
-        public Statistics(Game game) : base(game)
+        public Statistics(Game game, ContentManager content) : base(game)
         {
-            m_content = new ContentManager(game.Services);
-
-            // TODO: Ehh, need to get this from the config or the game class.
-            m_content.RootDirectory = "Content";
+            m_content = content;
         }
 
 

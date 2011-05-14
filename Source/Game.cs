@@ -48,7 +48,7 @@ namespace Raven
             m_camera = new Camera(this);
             Components.Add(m_camera);
 
-            m_stats = new Statistics(this);
+            m_stats = new Statistics(this, Content);
             Components.Add(m_stats);
 
             // Load the generated skydome
