@@ -152,7 +152,6 @@ namespace Raven
             m_stats["Position"] = String.Format("({0:0.###}, {1:0.###}, {2:0.###})", m_camera.Position.X, m_camera.Position.Y, m_camera.Position.Z);
             m_stats["Yaw"] = String.Format("{0:0.###}", MathHelper.ToDegrees(m_camera.Yaw));
             m_stats["Pitch"] = String.Format("{0:0.###}", MathHelper.ToDegrees(m_camera.Pitch));
-            m_stats["Time"] = (gameTime.TotalGameTime.Seconds * 1000 + gameTime.TotalGameTime.Milliseconds).ToString();
 
             base.Update(gameTime);
         }

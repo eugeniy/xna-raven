@@ -39,11 +39,10 @@ namespace Raven
         /// </summary>
         public override void Initialize()
         {
-            // TODO: Add your initialization code here
-
-            // By default, this class only sets the frames per second statistic
+            // By default, this class only sets the frames per second and memory statistics
             m_statistics = new Dictionary<string, string>();
             m_statistics["FPS"] = "0";
+            m_statistics["Memory"] = "0";
 
             base.Initialize();
         }
@@ -86,6 +85,7 @@ namespace Raven
                 m_frameRate = m_frameCounter;
                 m_frameCounter = 0;
                 m_statistics["FPS"] = m_frameRate.ToString();
+                m_statistics["Memory"] = (GC.GetTotalMemory(false) / 1024f / 1024f).ToString();
             }
 
             base.Update(gameTime);
