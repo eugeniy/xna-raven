@@ -44,8 +44,7 @@ namespace Raven
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-            m_camera = new Camera(this);
+            m_camera = new Camera2D(this);
             Components.Add(m_camera);
 
             m_stats = new Statistics(this, Content);

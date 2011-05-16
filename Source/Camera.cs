@@ -13,7 +13,7 @@ namespace Raven
         protected Vector3 m_up = Vector3.Up;
         protected Vector3 m_direction;
 
-        Quaternion m_rotation = Quaternion.Identity;
+        protected Quaternion m_rotation = Quaternion.Identity;
 
         protected const float m_pitchLimit = 1.4f;
 
