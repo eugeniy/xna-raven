@@ -24,6 +24,7 @@ namespace Raven
         Camera m_camera;
         Statistics m_stats;
         Skydome m_dome;
+        Console m_console;
 
         VertexPositionColor[] vertices;
 
@@ -53,6 +54,9 @@ namespace Raven
             // Load the generated skydome
             m_dome = new Skydome(this, Content);
             Components.Add(m_dome);
+
+            m_console = new Console(this);
+            Components.Add(m_console);
 
             base.Initialize();
         }
