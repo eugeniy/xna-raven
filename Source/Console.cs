@@ -14,7 +14,6 @@ namespace Raven
         protected ScriptEngine m_engine;
         protected ScriptRuntime m_runtime;
         protected ScriptScope m_scope;
-        protected CompiledCode m_code;
 
         public Console(Game game) : base(game)
         {
@@ -44,33 +43,14 @@ namespace Raven
         }
 
         /// <summary>
-        /// Compile the given source code string.
-        /// </summary>
-        /// <param name="code">The source code.</param>
-        /// <returns>True if compiled successfully, false otherwise.</returns>
-        public bool Compile(string code)
-        {
-            try
-            {
-                var source = m_engine.CreateScriptSourceFromString(code, SourceCodeKind.Statements);
-                m_code = source.Compile();
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
-        /// <summary>
-        /// Execute the compiled source code.
+        /// Execute the given source code.
         /// </summary>
         /// <returns>True if executed successfully, false otherwise.</returns>
-        public bool Execute()
+        public bool Execute(string code)
         {
             try
             {
-                m_code.Execute(m_scope);
+                m_engine.Execute(code, m_scope);
                 return true;
             }
             catch

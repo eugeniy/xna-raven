@@ -43,23 +43,19 @@ namespace Tests
         }
 
         [Test]
-        public void CompileScript()
-        {
-            Assert.AreEqual(true, m_console.Compile("print \"hello, world\""));
-            Assert.AreEqual(false, m_console.Compile("this shouldn't compile"));
-        }
-
-        [Test]
         public void ExecuteScript()
         {
-            m_console.Compile("print \"hello, world\"");
-            Assert.AreEqual(true, m_console.Execute());
+            Assert.AreEqual(false, m_console.Execute("this shouldn't compile"));
+            Assert.AreEqual(true, m_console.Execute("print \"hello, world\""));
 
             // Set some variable and change it from within the script
             m_console["panda"] = "kilgore";
-            m_console.Compile("panda = \"trout\"");
-            m_console.Execute();
+            m_console.Execute("panda = \"trout\"");
             Assert.AreEqual("trout", m_console["panda"]);
+
+            // Create some variable in the script
+            m_console.Execute("bear = \"teddy\"");
+            Assert.AreEqual("teddy", m_console["bear"]);
         }
     }
 
