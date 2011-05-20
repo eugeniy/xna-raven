@@ -149,8 +149,15 @@ namespace Raven
             else if (keyboard.IsKeyDown(Keys.OemTilde) && !previousKeyboard.IsKeyDown(Keys.OemTilde))
             {
                 if (m_console.Enabled)
+                {
                     m_console.Enabled = false;
-                else m_console.Enabled = true;
+                    m_camera.Enabled = true;
+                }
+                else
+                {
+                    m_camera.Enabled = false;
+                    m_console.Enabled = true;
+                }
             }
 
             // Display wire frames and don't cull when tab is pressed
