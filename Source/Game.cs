@@ -28,6 +28,8 @@ namespace Raven
 
         VertexPositionColor[] vertices;
 
+        KeyboardState previousKeyboard;
+
         public Game()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -133,22 +135,34 @@ namespace Raven
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            var keyboard = Keyboard.GetState();
+
             // Allows the game to exit
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || keyboard.IsKeyDown(Keys.Escape))
                 this.Exit();
 
             // Enter fullscreen
-            else if (Keyboard.GetState().IsKeyDown(Keys.RightAlt) && Keyboard.GetState().IsKeyDown(Keys.Enter))
+            else if (keyboard.IsKeyDown(Keys.RightAlt) && keyboard.IsKeyDown(Keys.Enter))
                 graphics.ToggleFullScreen();
 
+            // Toggle the game console display
+            else if (keyboard.IsKeyDown(Keys.OemTilde) && !previousKeyboard.IsKeyDown(Keys.OemTilde))
+            {
+                if (m_console.Enabled)
+                    m_console.Enabled = false;
+                else m_console.Enabled = true;
+            }
+
             // Display wire frames and don't cull when tab is pressed
-            else if (Keyboard.GetState().IsKeyDown(Keys.Tab))
+            else if (keyboard.IsKeyDown(Keys.Tab))
             {
                 var rasterizer = new RasterizerState();
                 rasterizer.FillMode = FillMode.WireFrame;
                 rasterizer.CullMode = CullMode.None;
                 GraphicsDevice.RasterizerState = rasterizer;
             }
+
+            previousKeyboard = keyboard;
 
 
             // Display some debug information

@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
 using IronPython.Hosting;
@@ -15,8 +16,14 @@ namespace Raven
         protected ScriptRuntime m_runtime;
         protected ScriptScope m_scope;
 
+        protected SpriteBatch m_spriteBatch;
+        protected Texture2D m_overlay;
+        protected Rectangle m_destination;
+
         public Console(Game game) : base(game)
         {
+            m_destination = new Rectangle(0, 0, Game.Window.ClientBounds.Width, Game.Window.ClientBounds.Height / 3);
+            Enabled = false;
         }
 
         /// <summary>
@@ -34,12 +41,38 @@ namespace Raven
         }
 
         /// <summary>
+        /// Load the content used by the component.
+        /// </summary>
+        protected override void LoadContent()
+        {
+            m_spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            // Create a black, semi-transparrent 1x1 texture.
+            m_overlay = new Texture2D(GraphicsDevice, 1, 1, false, SurfaceFormat.Color);
+            m_overlay.SetData<Color>(new Color[] { new Color(0, 0, 0, 0.5f) });
+
+            base.LoadContent();
+        }
+
+        /// <summary>
         /// Allows the game component to update itself.
         /// </summary>
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
+        }
+
+        public override void Draw(GameTime gameTime)
+        {
+            if (Enabled)
+            {
+                m_spriteBatch.Begin();
+                m_spriteBatch.Draw(m_overlay, m_destination, Color.Black);
+                m_spriteBatch.End();
+            }
+
+            base.Draw(gameTime);
         }
 
         /// <summary>
