@@ -200,7 +200,6 @@ namespace Raven
         /// </summary>
         /// <param name="gameTime">Snapshot of the game timing state.</param>
         /// <param name="camera">Reference to the instance of the camera class.</param>
-        /// <param name="graphics">Reference to the graphics device.</param>
         public void Draw(GameTime gameTime, Camera camera)
         {
             // Set renderstates for drawing the sky. For maximum efficiency, we draw the sky
@@ -219,12 +218,12 @@ namespace Raven
             m_effect.Parameters["Projection"].SetValue(camera.Projection);
             m_effect.Parameters["Time"].SetValue(gameTime.TotalGameTime.Seconds * 1000 + gameTime.TotalGameTime.Milliseconds);
 
-            GraphicsDevice.Indices = m_indexBuffer;
-            GraphicsDevice.SetVertexBuffer(m_vertexBuffer);
-
             foreach (EffectPass pass in m_effect.CurrentTechnique.Passes)
             {
                 pass.Apply();
+
+                GraphicsDevice.Indices = m_indexBuffer;
+                GraphicsDevice.SetVertexBuffer(m_vertexBuffer);
                 GraphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, m_vertexBuffer.VertexCount, 0, m_indexBuffer.IndexCount / 3);
             }
 

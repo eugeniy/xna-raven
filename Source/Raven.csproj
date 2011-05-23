@@ -129,6 +129,7 @@
     <Compile Include="Game.cs" />
     <Compile Include="Skydome.cs" />
     <Compile Include="Statistics.cs" />
+    <Compile Include="Terrain.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Game.ico" />

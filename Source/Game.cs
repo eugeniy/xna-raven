@@ -19,14 +19,11 @@ namespace Raven
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        Effect effect;
-
         Camera m_camera;
         Statistics m_stats;
         Skydome m_dome;
+        Terrain m_terrain;
         Console m_console;
-
-        VertexPositionColor[] vertices;
 
         KeyboardState previousKeyboard;
 
@@ -47,7 +44,7 @@ namespace Raven
         /// </summary>
         protected override void Initialize()
         {
-            m_camera = new Camera2D(this);
+            m_camera = new Camera(this);
             Components.Add(m_camera);
 
             m_stats = new Statistics(this, Content);
@@ -56,6 +53,9 @@ namespace Raven
             // Load the generated skydome
             m_dome = new Skydome(this, Content);
             Components.Add(m_dome);
+
+            m_terrain = new Terrain(this, Content);
+            Components.Add(m_terrain);
 
             m_console = new Console(this);
             Components.Add(m_console);
@@ -100,22 +100,6 @@ namespace Raven
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
-
-            // Load my basic shader!
-            effect = Content.Load<Effect>(@"Shaders\Simple");
-
-            
-
-            vertices = new VertexPositionColor[3];
-
-            vertices[0].Position = new Vector3(-0.5f, -0.5f, 0f);
-            vertices[0].Color = Color.Red;
-            vertices[1].Position = new Vector3(0, 0.5f, 0f);
-            vertices[1].Color = Color.Green;
-            vertices[2].Position = new Vector3(0.5f, -0.5f, 0f);
-            vertices[2].Color = Color.Yellow;
         }
 
         /// <summary>
@@ -124,8 +108,6 @@ namespace Raven
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
-            effect.Dispose();
         }
 
         /// <summary>
@@ -186,23 +168,11 @@ namespace Raven
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.DarkSlateGray);
-
-
+            GraphicsDevice.Clear(Color.SlateGray);
 
             m_dome.Draw(gameTime, m_camera);
 
-            effect.CurrentTechnique = effect.Techniques["Simple"];
-            effect.Parameters["World"].SetValue(Matrix.Identity);
-            effect.Parameters["View"].SetValue(m_camera.View);
-            effect.Parameters["Projection"].SetValue(m_camera.Projection);
-
-            foreach (EffectPass pass in effect.CurrentTechnique.Passes)
-            {
-                pass.Apply();
-                GraphicsDevice.DrawUserPrimitives(PrimitiveType.TriangleList, vertices, 0, 1, VertexPositionColor.VertexDeclaration);
-            }
-
+            m_terrain.Draw(gameTime, m_camera);
 
             base.Draw(gameTime);
         }
