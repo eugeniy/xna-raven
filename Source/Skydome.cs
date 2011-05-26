@@ -78,15 +78,14 @@ namespace Raven
         protected VertexPositionNormal[] GenerateVertices(int width, int height)
         {
             var vertices = new List<VertexPositionNormal>();
-            double theta, phi;
 
             // Create sphere vertices
             for (int j = 1; j < height - 1; j++)
             {
                 for (int i = 0; i < width; i++)
                 {
-                    theta = j / (float)(height - 1) * Math.PI;
-                    phi = i / (float)(width - 1) * Math.PI * 2;
+                    double theta = j / (float)(height - 1) * Math.PI;
+                    double phi = i / (float)(width - 1) * Math.PI * 2;
 
                     // Add a vector with the given position and color
                     vertices.Add(new VertexPositionNormal(new Vector3(
@@ -209,11 +208,11 @@ namespace Raven
 
 
             // The sky is infinitely far away, it should move with the camera and as large as its far plane allows.
-            Matrix World = Matrix.CreateScale(camera.FarPlane) * Matrix.CreateTranslation(camera.Position);
+            Matrix world = Matrix.CreateScale(camera.FarPlane) * Matrix.CreateTranslation(camera.Position);
 
 
             m_effect.CurrentTechnique = m_effect.Techniques["Simple"];
-            m_effect.Parameters["World"].SetValue(World);
+            m_effect.Parameters["World"].SetValue(world);
             m_effect.Parameters["View"].SetValue(camera.View);
             m_effect.Parameters["Projection"].SetValue(camera.Projection);
             m_effect.Parameters["Time"].SetValue(gameTime.TotalGameTime.Seconds * 1000 + gameTime.TotalGameTime.Milliseconds);

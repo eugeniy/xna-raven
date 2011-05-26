@@ -1,7 +1,5 @@
-using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
 using IronPython.Hosting;
 
@@ -55,14 +53,9 @@ namespace Raven
         }
 
         /// <summary>
-        /// Allows the game component to update itself.
+        /// Called when the DrawableGameComponent needs to be drawn.
         /// </summary>
-        /// <param name="gameTime">Provides a snapshot of timing values.</param>
-        public override void Update(GameTime gameTime)
-        {
-            base.Update(gameTime);
-        }
-
+        /// <param name="gameTime">Time passed since the last call to Draw.</param>
         public override void Draw(GameTime gameTime)
         {
             if (Enabled)

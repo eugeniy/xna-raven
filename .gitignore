@@ -7,3 +7,5 @@
 TestResult.xml
 bin
 obj
+_ReSharper.*
+*.ReSharper.user

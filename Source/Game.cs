@@ -121,7 +121,7 @@ namespace Raven
 
             // Allows the game to exit
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || keyboard.IsKeyDown(Keys.Escape))
-                this.Exit();
+                Exit();
 
             // Enter fullscreen
             else if (keyboard.IsKeyDown(Keys.RightAlt) && keyboard.IsKeyDown(Keys.Enter))
