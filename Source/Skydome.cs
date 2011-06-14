@@ -8,24 +8,6 @@ namespace Raven
 {
     public class Skydome : DrawableGameComponent
     {
-        // Declare a structure to hold skydome vertices.
-        public struct VertexPositionNormal
-        {
-            public Vector3 Position;
-            public Vector3 Normal;
-
-            public VertexPositionNormal(Vector3 position, Vector3 normal)
-            {
-                this.Position = position;
-                this.Normal = normal;
-            }
-
-            public readonly static VertexDeclaration VertexDeclaration = new VertexDeclaration(
-                new VertexElement(0, VertexElementFormat.Vector3, VertexElementUsage.Position, 0),
-                new VertexElement(sizeof(float) * 3, VertexElementFormat.Vector3, VertexElementUsage.Normal, 0)
-            );
-        }
-
         protected ContentManager m_content;
 
         protected Effect m_effect;
@@ -34,7 +16,6 @@ namespace Raven
 
         protected const int m_width = 32;
         protected const int m_height = 16;
-        protected const int m_triangleCount = (m_width - 1) * (m_height - 2) * 2;
 
 
         public Skydome(Game game, ContentManager content) : base(game)
@@ -51,7 +32,7 @@ namespace Raven
             m_effect = m_content.Load<Effect>(@"Shaders\Sky");
 
             // Load the skydome into memory, ready to be drawn
-            LoadToBuffer(m_width, m_height);
+            LoadToBuffer(new Sphere(m_width, m_height));
 
             base.LoadContent();
         }
@@ -71,126 +52,18 @@ namespace Raven
 
 
         /// <summary>
-        /// Generates an array of skydome vertices.
-        /// </summary>
-        /// <param name="width">Number of vertices along the equator of the sphere.</param>
-        /// <param name="height">Number of vertices from one pole to another.</param>
-        protected VertexPositionNormal[] GenerateVertices(int width, int height)
-        {
-            var vertices = new List<VertexPositionNormal>();
-
-            // Create sphere vertices
-            for (int j = 1; j < height - 1; j++)
-            {
-                for (int i = 0; i < width; i++)
-                {
-                    double theta = j / (float)(height - 1) * Math.PI;
-                    double phi = i / (float)(width - 1) * Math.PI * 2;
-
-                    // Add a vector with the given position and color
-                    vertices.Add(new VertexPositionNormal(new Vector3(
-                        (float)(Math.Sin(theta) * Math.Cos(phi)),
-                        (float)Math.Cos(theta),
-                        (float)(-Math.Sin(theta) * Math.Sin(phi))
-                    ), Vector3.Zero));
-                }
-            }
-            // Add poles of the sphere
-            vertices.Add(new VertexPositionNormal(new Vector3(0, 1, 0), Vector3.Zero));
-            vertices.Add(new VertexPositionNormal(new Vector3(0, -1, 0), Vector3.Zero));
-
-            return vertices.ToArray();
-        }
-
-
-        /// <summary>
-        /// Create a vertex array with calculated normals.
-        /// </summary>
-        /// <param name="vertices">A vertex array, assumes normal values are zero.</param>
-        /// <param name="indices">An index array for the skydome.</param>
-        protected VertexPositionNormal[] CalculateVertexNormals(VertexPositionNormal[] vertices, int[] indices)
-        {
-            for (int i = 0; i < indices.Length / 3; i++)
-            {
-                int index1 = indices[i * 3];
-                int index2 = indices[i * 3 + 1];
-                int index3 = indices[i * 3 + 2];
-
-                Vector3 side1 = vertices[index1].Position - vertices[index3].Position;
-                Vector3 side2 = vertices[index1].Position - vertices[index2].Position;
-                Vector3 normal = Vector3.Cross(side1, side2);
-
-                vertices[index1].Normal += normal;
-                vertices[index2].Normal += normal;
-                vertices[index3].Normal += normal;
-            }
-
-            // Normalize normal vectors
-            for (int i = 0; i < vertices.Length; i++)
-                vertices[i].Normal.Normalize();
-
-            return vertices;
-        }
-
-
-        /// <summary>
-        /// Generates an array of skydome indices.
-        /// </summary>
-        /// <param name="width">Number of vertices along the equator of the sphere.</param>
-        /// <param name="height">Number of vertices from one pole to another.</param>
-        protected int[] GenerateIndices(int width, int height)
-        {
-            var indices = new List<int>();
-
-            // Create sphere indices
-            for (int j = 0; j < height - 3; j++)
-            {
-                for (int i = 0; i < width - 1; i++)
-                {
-                    indices.Add(j * width + i);
-                    indices.Add((j + 1) * width + i + 1);
-
-                    indices.Add(j * width + i + 1);
-                    indices.Add(j * width + i);
-
-                    indices.Add((j + 1) * width + i);
-                    indices.Add((j + 1) * width + i + 1);
-                }
-            }
-
-            // Again add pole indices
-            for (int i = 0; i < width - 1; i++)
-            {
-                indices.Add((height - 2) * width);
-                indices.Add(i);
-                indices.Add(i + 1);
-                indices.Add((height - 2) * width + 1);
-                indices.Add((height - 3) * width + i + 1);
-                indices.Add((height - 3) * width + i);
-            }
-
-            return indices.ToArray();
-        }
-
-
-        /// <summary>
         /// Generates the skydome and places the result into vertex and index buffers.
         /// </summary>
-        /// <param name="width">Number of vertices along the equator of the sphere.</param>
-        /// <param name="height">Number of vertices from one pole to another.</param>
-        protected void LoadToBuffer(int width, int height)
+        /// <param name="sphere">An instance of a sphere to be used as a skydome.</param>
+        protected void LoadToBuffer(Sphere sphere)
         {
-            var vertices = GenerateVertices(width, height);
-            var indices = GenerateIndices(width, height);
-            vertices = CalculateVertexNormals(vertices, indices);
-
             // Allocate memory on the graphics device and copy vertices in it
-            m_vertexBuffer = new VertexBuffer(GraphicsDevice, VertexPositionNormal.VertexDeclaration, vertices.Length, BufferUsage.WriteOnly);
-            m_vertexBuffer.SetData(vertices);
+            m_vertexBuffer = new VertexBuffer(GraphicsDevice, Sphere.VertexPositionNormal.VertexDeclaration, sphere.Vertices.Length, BufferUsage.WriteOnly);
+            m_vertexBuffer.SetData(sphere.Vertices);
 
             // Do the same for indices
-            m_indexBuffer = new IndexBuffer(GraphicsDevice, typeof(int), indices.Length, BufferUsage.WriteOnly);
-            m_indexBuffer.SetData(indices);
+            m_indexBuffer = new IndexBuffer(GraphicsDevice, typeof(int), sphere.Indices.Length, BufferUsage.WriteOnly);
+            m_indexBuffer.SetData(sphere.Indices);
         }
 
 
