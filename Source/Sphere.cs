@@ -11,8 +11,11 @@ namespace Raven
         private int[] m_indices;
 
 
-        public Sphere(int width, int height)
+        public Sphere(int size)
         {
+            int height = size;
+            int width = height * 2;
+
             m_indices = GenerateIndices(width, height);
             m_vertices = CalculateVertexNormals(GenerateVertices(width, height), Indices);
         }

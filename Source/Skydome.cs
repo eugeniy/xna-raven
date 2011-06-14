@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
@@ -14,8 +12,7 @@ namespace Raven
         protected VertexBuffer m_vertexBuffer;
         protected IndexBuffer m_indexBuffer;
 
-        protected const int m_width = 32;
-        protected const int m_height = 16;
+        protected const int m_size = 16;
 
 
         public Skydome(Game game, ContentManager content) : base(game)
@@ -32,7 +29,7 @@ namespace Raven
             m_effect = m_content.Load<Effect>(@"Shaders\Sky");
 
             // Load the skydome into memory, ready to be drawn
-            LoadToBuffer(new Sphere(m_width, m_height));
+            LoadToBuffer(new Sphere(m_size));
 
             base.LoadContent();
         }
